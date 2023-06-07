@@ -184,3 +184,235 @@ SELECT * FROM aircrafts ORDER BY range DESC;
 DELETE FROM aircrafts WHERE range = 1500;
 DELETE FROM aircrafts WHERE range = 1500;
 \s command_history_606.sql
+
+7.06
+\q
+\h create table
+CREATE TABLE aircrafts (
+\d
+CREATE TABLE aircrafts (aircraft_code char(3) NOT NULL, model text NOT NULL, range integer NOT NULL, CHECK (range > 0), PRIMARY KEY (aircraft_code));
+\d
+\q
+\q
+SELECT * FROM aircrafts;
+\d
+\q
+SELECT * FROM aircrafts;
+\s sqlcommand
+\q
+SELECT 'PostgreSQL';
+SELECT 'PGDAY''17';
+SELECT $$PGDAY'17$$;
+SELECT E'PGDAY\n17';
+SELECT E'PGDAY\'17';
+SELECT '2016-09-12'::date;
+SELECT '2016-09-12';
+SELECT 'Sep 12, 2016'::date;
+//получения значения текущей даты
+SELECT current_date;
+//вывести дату в другом формате через ф-ию to_char
+SELECT to_char(current_date, 'dd-mm-yyyy');
+SELECT '21:15'::time;
+SELECT '25:15'::time;
+SELECT '21:15:26'::time;
+SELECT '21:15:69'::time;
+SELECT '10:15:16 am'::time;
+SELECT '10:15:16 pm'::time;
+//получениe значения текущего времени  функция current_time
+SELECT current_time;
+SELECT timestamp with time zone '2016-09-21 22:25:35';
+SELECT timestamptz '2016-09-21 22:25:35';
+SELECT timestamp '2016-09-21 22:25:35';
+//получения значения текущей временно́й отметки (т. е. даты и времени в одном
+значении) служит функция current_timestamp
+SELECT current_timestamp;
+//interval представляет продолжительность отрезка времени между двумя моментами времени
+SELECT '1 year 2 months ago'::interval;
+SELECT 'P0001-02-03T04:05:06'::interval;
+SELECT ('2016-09-16'::timestamp - '2016-09-01'::timestamp)::interval;
+//Значения временны́х отметок можно усекать с той или иной точностью date_trunc
+SELECT (date_trunc('hour', current_timestamp));
+//значений временны́х отметок можно извлекать с помощью функции extract 
+SELECT extract( 'mon' FROM timestamp '1999-11-27 12:34:56.123459');
+CREATE TABLE databases (is_open_source boolean, dbms_name text);
+INSERT INTO databases 
+VALUES 
+( TRUE, 'PostgreSQL' ), ( FALSE, 'Oracle' ), ( TRUE, 'MySQL' ), ( FALSE, 'MS SQL Server' );
+SELECT * FROM databases;
+SELECT * FROM databases WHERE is_open_source;
+//массивы []
+CREATE TABLE pilots (pilot_name text, schedule integer[]);
+INSERT INTO pilots VALUES 
+( 'Ivan', '{ 1, 3, 5, 6, 7 }'::integer[] ),
+( 'Petr', '{ 1, 2, 5, 7
+}'::integer[] ),
+( 'Pavel', '{ 2, 5
+}'::integer[] ),
+( 'Boris', '{ 3, 5, 6
+}'::integer[] );
+SELECT * FROM pilots;
+//операция конкатенации ||
+UPDATE pilots SET schedule = schedule || 7 WHERE pilot_name = 'Boris';
+//добавлениев конец массива с помощью array_append
+UPDATE pilots SET schedule = array_append(schedule, 6) WHERE pilot_name = 'PAVEL';
+//жобавление в начало массива array_append
+UPDATE pilots SET schedule = array_prepend(1, schedule) WHERE pilot_name = 'Pavel';
+//удаляем лишний элемент с помощью array_remove
+UPDATE pilots SET schedule = array_remove(schedule, 5) WHERE pilot_name = 'Ivan';
+//изменяем значения массивов 
+UPDATE pilots SET schedule[1] = 2, schedule[2] = 3 WHERE pilot_name = 'Petr';
+//изменяем значения массивов 2-ой способ
+UPDATE pilots SET schedule[1:2] = ARRAY[3,4] WHERE pilot_name = 'Petr';
+UPDATE pilots SET schedule[1:2] = ARRAY[2,3] WHERE pilot_name = 'Petr';
+SELECT * FROM pilots ;
+//Функция array_position возвращает индекс первого вхождения элемента с указанным значением в массив
+SELECT * FROM pilots WHERE array_position( schedule, 3) IS NOT NULL;
+//Оператор @> означает проверку того факта, что в левом массиве содержатся все эле-
+менты правого массива
+SELECT * FROM pilots WHERE schedule @> '{1, 7}'::integer[];
+//воспользуемся оператором &&, который проверяет наличие общих элементов у массивов
+SELECT * FROM pilots WHERE schedule && ARRAY[2, 5];
+//вопрос в форме отрицания
+SELECT * FROM pilots WHERE NOT (schedule && ARRAY[2, 5] );
+//развернуть массив в виде столбца таблицы
+SELECT unnest(schedule ) AS days_of_week FROM pilots WHERE pilot_name = 'Ivan';
+\s sql_cmd_706_1254.sql
+CREATE TABLE pilot_hobbies;
+CREATE TABLE pilot_hobbies (pilot_name text, hobbies jsonb);
+INSERT INTO pilot_hobbies VALUES 
+('Ivan', '{"sports": ["футбол", "плавание"], "home_lib": true, "trips": 3}'::jsonb),
+( 'Petr',
+'{ "sports": [ "теннис", "плавание" ],
+"home_lib": true, "trips": 2
+}'::jsonb
+),
+( 'Pavel',
+'{ "sports": [ "плавание" ],
+"home_lib": false, "trips": 4
+}'::jsonb
+),
+( 'Boris',
+'{ "sports": [ "футбол", "плавание", "теннис" ],
+"home_lib": true, "trips": 0
+}'::jsonb
+);
+SELECT * FROM pilot_hobbies ;
+SELECT * FROM pilot_hobbies;
+SELECT * FROM pilot_hobbies WHERE hobbies @> '{"sports":["футбол"]}'::jsonb;
+\s sql_cmd_706_1358.sql
+SELECT pilot_name, hobbies->'sports' AS sports FROM pilot_hobbies WHERE hobbies->'sports' @> '["футбол"]'::jsonb;
+SELECT count(*) FROM pilot_hobbies WHERE hobbies & 'sport';
+SELECT count(*) FROM pilot_hobbies WHERE hobbies ? 'sport';
+SELECT count(*) FROM pilot_hobbies WHERE hobbies ? 'sports';
+UPDATE pilot_hobbies SET hobbies = hobbies || '{"sports":["хоккей"]}'
+WHERE
+pilot_name = 'Boris';
+SELECT pilot_name, hobbies FROM pilot_hobbies WHERE pilot_name = 'Boris';
+//помощью функции jsonb_set можно будет обновить сведения таблице
+UPDATE pilot_hobbies SET hobbies = jsonb_set( hobbies, '{sports, 1}', '"футбол"') WHERE pilot_name = 'Boris';
+SELECT pilot_name, hobbies FROM pilot_hobbies WHERE pilot_name = 'Boris';
+// вопросы
+CREATE TABLE test_numeric
+(measurement numeric(5, 2), description text);
+INSERT INTO test_numeric VALUES 
+( 999.9999, 'Какое-то измерение ' );
+INSERT INTO test_numeric VALUES ( 999.9009, 'Еще одно измерение' );
+INSERT INTO test_numeric VALUES ( 999.1111, 'И еще измерение' );
+INSERT INTO test_numeric VALUES ( 998.9999, 'И еще одно' );
+DROP TABLE test_numeric;
+CREATE TABLE test_numeric
+(measurement numeric, description text);
+INSERT INTO test_numeric VALUES 
+(1234567890.0987654321, 'Точность 20 знаков, масштаб 10 знаков' );
+INSERT INTO test_numeric VALUES 
+( 1.5,
+'Точность 2 знака, масштаб 1 знак' );
+INSERT INTO test_numeric VALUES 
+( 0.12345678901234567890,
+'Точность 21 знак, масштаб 20 знаков' );
+INSERT INTO test_numeric VALUES 
+( 1234567890,
+'Точность 10 знаков, масштаб 0 знаков (целое число)' );
+SELECT * FROM test_numeric;
+SELECT 'NaN'::numeric > 10000;
+SELECT 0.0 * 'Inf'::real;
+select 'NaN'::real > 'Inf'::real;
+CREATE TABLE test_serial
+(id serial, name text);
+INSERT INTO test_serial ( name ) VALUES 
+('Вишневая');
+INSERT INTO test_serial ( name ) VALUES 
+('Грушевая');
+INSERT INTO test_serial ( name ) VALUES 
+('Зеленая');
+SELECT * FROM test_serial;
+INSERT INTO test_serial (id, name) VALUES ( 10, 'Прохладная' );
+INSERT INTO test_serial (name) VALUES ( 'Луговая' );
+SELECT * FROM test_serial;
+UPDATE test_serial SET PRIMARY KEY (id);
+ALTER TABLE test_serial ADD PRIMARY KEY(id);
+SELECT * FROM test_serial;
+\d test_serial
+INSERT INTO test_serial ( name) VALUES 
+( 'Вишневая' );
+SELECT * FROM test_serial;
+INSERT INTO test_serial ( id, name) VALUES 
+( 2, 'Прохладная' );
+INSERT INTO test_serial ( name) VALUES 
+( 'Грушевая' );
+SELECT * FROM test_serial;
+INSERT INTO test_serial ( name) VALUES 
+( 'Грушевая' );
+SELECT * FROM test_serial;
+INSERT INTO test_serial ( name) VALUES 
+( 'Зеленая' );
+SELECT * FROM test_serial;
+DELETE FROM test_serial WHERE id = 4;
+SELECT * FROM test_serial;
+DELETE FROM test_serial WHERE id = 8;
+INSERT INTO test_serial ( name) VALUES 
+( 'Луговая' );
+SELECT * FROM test_serial;
+SELECT current_time;
+SELECT current_time::time(0);
+SELECT current_time::time(3);
+SELECT current_time::timestamp(0);
+SELECT current_timestamp;
+SELECT current_timestamp::time(0);
+SELECT current_timestamp::time(3);
+SHOW datestyle;
+SELECT '18-05-2016'::date;
+SELECT '05-18-2016'::date;
+SELECT '2016-05-18'::date;
+SET datestyle TO 'MDY';
+SELECT '18-05-2016'::date;
+SELECT '05-18-2016'::date;
+SET datestyle TO DEFAULT;
+SELECT '18-05-2016'::timestamp;
+SELECT '05-18-2016'::timestamp;
+\s cmd_sql_706_1711.sql
+\q
+SHOW datestyle;
+SELECT to_char( current_timestamp, 'mi:ss');
+SELECT to_char( current_timestamp, 'dd');
+SELECT to_char( current_timestamp, 'yyyy-mm-dd');
+SELECT 'Feb 29, 2015'::date;
+SELECT '21:15:16:22'::time;
+SELECT '21:15:16'::time;
+SELECT ('2016-09-16'::date - '2016-09-01'::date );
+SELECT ( '20:34:35'::time - '19:44:45'::time );
+SELECT ( '20:34:35'::time + '19:44:45'::time );
+SELECT (current_timestamp - '2016-01-01'::timestamp ) AS new_date;
+SELECT (current_timestamp + '1 mon'::interval) AS new_date;
+SELECT (current_timestamp + '1 mon'::interval);
+SELECT ( '2016-01-31'::date + '1 mon'::interval ) AS new_date;
+SELECT ( '2016-02-29'::date + '1 mon'::interval ) AS new_date;
+SELECT ( '2016-09-16'::date - '2015-09-01'::date );
+SELECT ( '2016-09-16'::timestamp - '2015-09-01'::timestamp );
+SELECT ( '20:34:35'::time - 1 );
+SELECT ( '2016-09-16'::date - 1 );
+SELECT ( '20:34:35'::time - '1'::time );
+SELECT ( '20:34:35'::time - '01'::time );
+SELECT ( '20:34:35'::time - '01:00:00'::time );
+SELECT (date_trunc('sec', timestamp '1999-11-27 12:34:56.987654' ) );
+\s sql_cmd_706_1818.sql
