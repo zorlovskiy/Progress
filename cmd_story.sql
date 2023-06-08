@@ -416,3 +416,199 @@ SELECT ( '20:34:35'::time - '01'::time );
 SELECT ( '20:34:35'::time - '01:00:00'::time );
 SELECT (date_trunc('sec', timestamp '1999-11-27 12:34:56.987654' ) );
 \s sql_cmd_706_1818.sql
+SELECT extract (
+'microsecond' from timestamp '1999-11-27 12:34:56.123459'
+);
+\d
+SELECT * FROM test_serial;
+CREATE TABLE databases
+( is_open_source boolean,
+dbms_name text
+);
+\d
+INSERT INTO databases VALUES ( TRUE, 'PostgreSQL' );
+INSERT INTO databases VALUES 
+( FALSE, 'Oracle' );
+INSERT INTO databases VALUES ( TRUE, 'MySQL' );
+INSERT INTO databases VALUES ( FALSE, 'MS SQL Server' );
+SELECT * FROM databases WHERE NOT is_open_source;
+SELECT * FROM databases WHERE is_open_source <> 'yes';
+SELECT * FROM databases WHERE is_open_source <> 't';
+SELECT * FROM databases WHERE is_open_source <> '1';
+SELECT * FROM databases WHERE is_open_source <> 1;
+CREATE TABLE test_bool (a boolean, b text);
+INSERT INTO test_bool VALUES 
+( TRUE, 'yes' ),
+( yes, 'yes' ),
+( 'yes', true ),
+( 'yes', TRUE ),
+( '1', 'true' ),
+( 1, 'true' ),
+( 't', 'true' ),
+( 't', truth ),
+( true, true ),
+( 1::boolean, 'true' ),
+( 111::boolean, 'true' );
+INSERT INTO test_bool VALUES 
+( TRUE, 'yes' ),
+( yes, 'yes' ),
+( 'yes', true ),
+( 'yes', TRUE ),
+( '1', 'true' ),
+( 1, 'true' ),
+( 't', 'true' ),
+( 't', truth ),
+( true, true ),
+( 1::boolean, 'true' ),
+( 111::boolean, 'true' );
+INSERT INTO test_bool VALUES 
+( TRUE, 'yes' ),
+( yes, 'yes' ),
+( 'yes', true ),
+( 'yes', TRUE ),
+( '1', 'true' ),
+( 1, 'true' ),
+( 't', 'true' ),
+( 't', truth ),
+( true, true ),
+( 111::boolean, 'true' );
+INSERT INTO test_bool VALUES 
+( TRUE, 'yes' ),
+( yes, 'yes' ),
+( 'yes', TRUE ),
+( '1', 'true' ),
+( 1, 'true' ),
+( 't', 'true' ),
+( 't', truth ),
+( true, true ),
+( 111::boolean, 'true' );
+CREATE TABLE birthdays 
+(person text NOT NULL, birthday date NOT null);
+INSERT INTO birthdays VALUES 
+( 'Ken Thompson', '1955-03-23' ),
+( 'Ben Johnson', '1971-03-19' ),
+( 'Andy Gibson', '1987-08-12' );
+SELECT * FROM birthdays WHERE extract('mon' from birthdays ) = 3;
+SELECT * FROM birthdays WHERE extract('mon' from birthday ) = 3;
+SELECT *, birthday + '40 years'::interval FROM birthdays 
+WHERE
+birthday + '40 years'::interval < current_timestamp;
+SELECT *, birthday + '40 years'::interval FROM birthdays 
+WHERE
+birthday + '40 years'::interval < current_date;
+SELECT *, (current_date::timestamp - birthday::timestamp)::interval FROM birthdays;
+SELECT *, extract('year', age(current_date::timestamp - birthday::timestamp)::interval FROM birthdays;
+)
+\q
+SELECT *, extract('year', age(current_date::timestamp - birthday::timestamp))::interval FROM birthdays;
+SELECT *, extract('year' from age(current_date::timestamp - birthday::timestamp))::interval FROM birthdays;
+SELECT *, extract('year' from age(timestamp current_date - timestamp birthday))::interval FROM birthdays;
+SELECT *, extract('year' from age(timestamp current_date, timestamp birthday))::interval FROM birthdays;
+SELECT *, extract('year' from age(current_date::timestamp, birthday::timestamp))::interval FROM birthdays;
+SELECT *, extract('year' from age(current_date::timestamp, birthday::timestamp)) FROM birthdays;
+\s sql_cmd_806_1303.sql
+//конкатенация массива
+;
+SELECT array_cat( ARRAY[1, 2, 3], ARRAY[3, 5]);
+\s sql_cmd_806_1335.sql
+//удаление элемента из массива;
+SELECT array_remove( ARRAY[1, 2, 3], 3);
+CREATE TABLE pilots
+(pilot_name text, schedule integer[], meal text[]);
+INSERT INTO pilots VALUES 
+( 'Ivan', '{ 1, 3, 5, 6, 7 }'::integer[],
+'{ "сосиска", "макароны", "кофе" }'::text[]
+),
+( 'Petr', '{ 1, 2, 5, 7 }'::integer [],
+'{ "котлета", "каша", "кофе" }'::text[]
+),
+( 'Pavel', '{ 2, 5 }'::integer[],
+'{ "сосиска", "каша", "кофе" }'::text[]
+),
+( 'Boris', '{ 3, 5, 6 }'::integer[],
+'{ "котлета", "каша", "чай" }'::text[]
+);
+SELECT * FROM pilots;
+SELECT * FROM pilots WHERE meal[1] = 'сосиска';
+SELECT * FROM pilots WHERE meal[1] = 'каша';
+DROP TABLE pilots;
+CREATE TABLE pilots
+(pilot_name text, schedule integer[], meal text[][]);
+
+'{ { "сосиска", "макароны", "кофе" },
+{ "котлета", "каша", "кофе" },
+{ "мясо", "каша", "кофе" },
+{ "котлета", "каша", "чай" } }'::text[][]
+;
+INSERT INTO pilots VALUES 
+( 'Ivan', '{ 1, 3, 5, 6, 7 }'::integer[],
+'{ { "сосиска", "макароны", "кофе" },
+{ "котлета", "каша", "кофе" },
+{ "сосиска", "каша", "кофе" },
+{ "котлета", "каша", "чай" } }'::text[][]
+),
+( 'Petr', '{ 1, 2, 5, 7 }'::integer [],
+'{ { "сосиска", "макароны", "кофе" },
+{ "котлета", "каша", "кофе" },
+{ "сосиска", "каша", "кофе" },
+{ "котлета", "каша", "чай" } }'::text[][]
+),
+( 'Pavel', '{ 2, 5 }'::integer[],
+'{ { "сосиска", "макароны", "кофе" },
+{ "котлета", "каша", "кофе" },
+{ "сосиска", "каша", "кофе" },
+{ "котлета", "каша", "чай" } }'::text[][]
+),
+( 'Boris', '{ 3, 5, 6 }'::integer[],
+'{ { "сосиска", "макароны", "кофе" },
+{ "котлета", "каша", "кофе" },
+{ "сосиска", "каша", "кофе" },
+{ "котлета", "каша", "чай" } }'::text[][]
+);
+SELECT * FROM pilots;
+SELECT * FROM pilots WHERE meal[ ][ ] = 'сосиска';
+SELECT * FROM pilots WHERE meal[ ] [ ] = 'сосиска';
+SELECT * FROM pilots WHERE meal[ ] = 'сосиска';
+SELECT * FROM pilots WHERE meal[ 1] = 'сосиска';
+SELECT * FROM pilots WHERE meal[ 1, 2, 3, 4 ] = 'сосиска';
+SELECT * FROM pilots WHERE array_position(meal, 'сосиска') IS NOT NULL;
+SELECT * FROM pilots WHERE meal = 'сосиска';
+SELECT * FROM pilots WHERE meal @> '{сосиска}';
+INSERT INTO pilots VALUES 
+( 'Zak', '{ 1, 3, 5, 6, 7 }'::integer[],
+'{ { "мясо", "макароны", "кофе" },
+{ "котлета", "каша", "кофе" },
+{ "мясо", "каша", "кофе" },
+{ "котлета", "каша", "чай" } }'::text[][]
+);
+SELECT * FROM pilots;
+SELECT * FROM pilots WHERE meal @> '{сосиска}';
+SELECT * FROM pilots WHERE meal @> '{сосиска}' AND schedule = 3;
+SELECT * FROM pilots WHERE meal @> '{сосиска}' AND schedule @> '{3}'::integer[];
+\d
+\s sql_cmd_806_1542.sql
+\q
+\d
+\d pilot_hobbies 
+UPDATE pilot_hobbies SET hobbies = jasonb_set(hobbies, '{trips}', '10') WHERE pilot_name = 'Pavel';
+UPDATE pilot_hobbies SET hobbies = jsonb_set(hobbies, '{trips}', '10') WHERE pilot_name = 'Pavel';
+SELECT * FROM pilot_hobbies;
+SELECT pilot_name, hobbies -> 'trips' AS trips FROM pilot_hobbies;
+UPDATE pilot_hobbies SET hobbies = jsonb_set( hobbies, '{home_lib}', '10') WHERE pilot_name = 'Boris';
+SELECT * FROM pilot_hobbies;
+UPDATE pilot_hobbies SET hobbies = jsonb_set( hobbies, '{home_lib}', 'false') WHERE pilot_name = 'Boris';
+SELECT * FROM pilot_hobbies;
+SELECT '{"sports": "хоккей"}'::jsonb || '{ "trips": 5 }'::jsonb;
+\d pilots;
+\d pilot_hobbies;
+SELECT * FROM pilot_hobbies;
+UPDATE pilot_hobbies SET hobbies = hobbies || '{"car": [ "KIA" ] }' WHERE pilot_name = 'Petr';
+SELECT * FROM pilot_hobbies;
+UPDATE pilot_hobbies SET hobbies = hobbies - '{"trips"}' WHERE pilot_name = 'Ivan';
+SELECT * FROM pilot_hobbies;
+UPDATE pilot_hobbies SET hobbies - '{"trips"}' WHERE pilot_name = 'Ivan';
+UPDATE pilot_hobbies SET hobbies = hobbies - 'trips' WHERE pilot_name = 'Ivan';
+SELECT * FROM pilot_hobbies;
+/s sql_cmd_806_1826.sql
+;
+\s sql_cmd_806_1826.sql
