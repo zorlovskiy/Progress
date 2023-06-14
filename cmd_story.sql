@@ -1225,3 +1225,252 @@ SELECT max( total_amount ) FROM bookings;
 --получение минимального значения по столбцу
 SELECT min( total_amount ) FROM bookings;
 \s slq_cmd_1306.sql
+create database bookings;
+\q
+\q
+\d
+\й
+\l
+\q
+\d
+SELECT * FROM aircrafts;
+SELECT * FROM seats;
+SELECT avg (total_amount) FROM bookings;
+SELECT max (total_amount) FROM bookings;
+SELECT min (total_amount) FROM bookings;
+SELECT arrival_city, count(*) FROM routes WHERE departure_city = 'Москва'GROUP BY arrival_city ORDER BY count DESC;
+\d routes;
+SELECT array_length( days_of_week, 1 ) AS days_per_week,
+count( * ) AS num_routes
+FROM routes
+GROUP BY days_per_week
+ORDER BY 1 desc;
+--HAVING сужает количество результирующих строк при группировке
+SELECT departure_city, count( * )
+FROM routes
+GROUP BY departure_city
+HAVING count( * ) >= 15
+ORDER BY count DESC;
+SELECT citt, count(*) FROM airports GROUP BY city HAVING count(*) > 1;
+SELECT city, count(*) FROM airports GROUP BY city HAVING count(*) > 1;
+SELECT b.book_ref,
+b.book_date,
+extract( 'month' from b.book_date ) AS month,
+extract( 'day'
+from b.book_date ) AS day,
+count( * ) OVER (
+PARTITION BY date_trunc( 'month', b.book_date )
+ORDER BY b.book_date
+) AS count
+FROM ticket_flights tf
+JOIN tickets t ON tf.ticket_no = t.ticket_no
+JOIN bookings b ON t.book_ref = b.book_ref
+WHERE tf.flight_id = 1
+ORDER BY b.book_date;
+SELECT airport_name, city, timezone, latitude,
+first_value( latitude )
+OVER tz AS first_in_timezone,
+latitude - first_value( latitude ) OVER tz AS delta,
+rank()
+OVER tz
+FROM airports
+WHERE timezone IN ( 'Asia/Irkutsk', 'Asia/Krasnoyarsk' )
+WINDOW tz AS ( PARTITION BY timezone ORDER BY latitude DESC )
+ORDER BY timezone, rank;
+SELECT * FROM airports;
+SELECT * FROM airports;
+SELECT airport_name, city, timezone, coordinates,
+first_value( coordinates )
+OVER tz AS first_in_timezone,
+coordinates - first_value( coordinates ) OVER tz AS delta,
+rank()
+OVER tz
+FROM airports
+WHERE timezone IN ( 'Asia/Irkutsk', 'Asia/Krasnoyarsk' )
+WINDOW tz AS ( PARTITION BY timezone ORDER BY coordinates DESC )
+ORDER BY timezone, rank;
+SELECT * FROM airports;
+SELECT airport_name, city, timezone, coordinates,
+first_value( coordinates )
+OVER tz AS first_in_timezone,
+coordinates - first_value( coordinates ) OVER tz AS delta,
+rank()
+OVER tz
+FROM airports
+WHERE timezone IN ( 'Asia/Irkutsk', 'Asia/Krasnoyarsk' )
+WINDOW tz AS ( PARTITION BY timezone ORDER )
+ORDER BY timezone, rank;
+SELECT airport_name, city, timezone, coordinates,
+first_value( coordinates )
+OVER tz AS first_in_timezone,
+coordinates - first_value( coordinates ) OVER tz AS delta,
+rank()
+OVER tz
+FROM airports
+WHERE timezone IN ( 'Asia/Irkutsk', 'Asia/Krasnoyarsk' )
+WINDOW tz AS ( PARTITION BY timezone )
+ORDER BY timezone, rank;
+--Подзапросы
+[200~SELECT flight_no, departure_city, arrival_city
+FROM routes
+WHERE departure_city IN (
+SELECT city
+FROM airports
+WHERE timezone ~ 'Krasnoyarsk'
+)
+AND arrival_city IN (
+SELECT city
+FROM airports
+WHERE timezone ~ 'Krasnoyarsk'
+ж
+);
+SELECT flight_no, departure_city, arrival_city
+FROM routes
+WHERE departure_city IN (
+SELECT city
+FROM airports
+WHERE timezone ~ 'Krasnoyarsk'
+)
+AND arrival_city IN (
+SELECT city
+FROM airports
+WHERE timezone ~ 'Krasnoyarsk'
+);
+SELECT airport_name, city, longitude
+FROM airports
+WHERE longitude IN (
+( SELECT max( longitude ) FROM airports ),
+( SELECT min( longitude ) FROM airports )
+)
+ORDER BY coordinates;
+SELECT * FROM airports;
+SELECT DISTINCT a.city
+FROM airports a
+WHERE NOT EXISTS (
+SELECT * FROM routes r
+WHERE r.departure_city = 'Москва'
+AND r.arrival_city = a.city
+)
+AND a.city <> 'Москва'
+ORDER BY city;
+SELECT a.city
+FROM airports a
+WHERE NOT EXISTS (
+SELECT * FROM routes r
+WHERE r.departure_city = 'Москва'
+AND r.arrival_city = a.city
+)
+AND a.city <> 'Москва'
+ORDER BY city;
+SELECT a.model,
+( SELECT count( * )
+FROM seats s
+WHERE s.aircraft_code = a.aircraft_code
+AND s.fare_conditions = 'Business'
+) AS business,
+( SELECT count( * )
+FROM seats s
+WHERE s.aircraft_code = a.aircraft_code
+AND s.fare_conditions = 'Comfort'
+) AS comfort,
+( SELECT count( * )
+FROM seats s
+WHERE s.aircraft_code = a.aircraft_code
+AND s.fare_conditions = 'Economy'
+) AS economy
+FROM aircrafts a
+ORDER BY 1;
+SELECT s2.model,
+string_agg(
+s2.fare_conditions || ' (' || s2.num || ')',
+', '
+)
+FROM (
+SELECT a.model,
+s.fare_conditions,
+count( * ) AS num
+FROM aircrafts a
+JOIN seats s ON a.aircraft_code = s.aircraft_code
+GROUP BY 1, 2
+ORDER BY 1, 2
+) AS s2
+GROUP BY s2.model
+ORDER BY s2.model;
+SELECT aa.city, aa.airport_code, aa.airport_name
+FROM (
+SELECT city, count( * )
+FROM airports
+GROUP BY city
+HAVING count( * ) > 1
+) AS a
+JOIN airports AS aa ON a.city = aa.city
+ORDER BY aa.city, aa.airport_name;
+SELECT aa.city, aa.airport_code, aa.airport_name
+FROM (
+SELECT city, count( * )
+FROM airports
+GROUP BY city
+HAVING count( * ) > 1
+) AS a
+JOIN airports AS aa ON a.city = aa.city
+ORDER BY aa.city, aa.airport_name;
+WITH RECURSIVE ranges ( min_sum, max_sum ) AS
+( VALUES ( 0, 100000 )
+UNION ALL
+SELECT min_sum + 100000, max_sum + 100000
+FROM ranges
+WHERE max_sum <
+( SELECT max( total_amount ) FROM bookings )
+)
+SELECT * FROM ranges;
+WITH RECURSIVE ranges ( min_sum, max_sum ) AS
+( VALUES( 0, 100000 )
+UNION ALL
+SELECT min_sum + 100000, max_sum + 100000
+FROM ranges
+WHERE max_sum <
+( SELECT max( total_amount ) FROM bookings )
+)
+SELECT r.min_sum, r.max_sum, count( b.* )
+FROM bookings b
+RIGHT OUTER JOIN ranges r
+ON b.total_amount >= r.min_sum
+AND b.total_amount < r.max_sum
+GROUP BY r.min_sum, r.max_sum
+ORDER BY r.min_sum;
+\d routes;
+\s sql_cmd_1406.sql
+SELECT count( * ) FROM tickets;
+SELECT count( * ) FROM tickets WHERE passenger_name LIKE '% %';
+SELECT count( * ) FROM tickets WHERE passenger_name LIKE '% % %';
+SELECT count( * ) FROM tickets WHERE passenger_name LIKE '% %%';
+\d tickets;
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE '_____ %';
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE '___ %';
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE '___ % _____ %';
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE '_____ % _____ %';
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE '______ % _____ %';
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE ' % _____ %';
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE '% _____ %';
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE '% %_____';
+SELECT passenger_name
+FROM tickets
+WHERE passenger_name LIKE '% % _____';
+
+\s sql_cmd_1406_1846.sql
