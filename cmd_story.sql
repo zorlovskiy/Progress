@@ -1474,3 +1474,110 @@ FROM tickets
 WHERE passenger_name LIKE '% % _____';
 
 \s sql_cmd_1406_1846.sql
+SELECT * FROM aircrafts;
+SELECT r.flight_no, r.departure_city, r.arrival_city, a.model
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code WHERE a.model ~ '^Боинг 737'
+GROUP BY 1, 2, 3, 4
+ORDER BY 3 DESC;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Boeing 777-300'
+ORDER BY 1;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Боинг 777-300'
+ORDER BY 1;
+SELECT departure_city, arrival_city
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Боинг 777-300'
+ORDER BY 1;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Боинг 777-300' AND departure_city <> arrival_city
+ORDER BY 1;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Боинг 777-300' AND departure_city <> arrival_city
+ORDER BY 1, 2;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Боинг 777-300' AND departure_city = arrival_city
+ORDER BY 1, 2;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+LEFT JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Боинг 777-300' AND departure_city = arrival_city
+ORDER BY 1, 2;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+LEFT JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Боинг 777-300'
+ORDER BY 1, 2;
+SELECT r.flight_no, r.departure_city, r.arrival_city
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+GROUP BY 1, 2
+ORDER BY 1;
+SELECT r.flight_no, r.departure_city, r.arrival_city, a.model
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code WHERE a.model ~ '^Боинг 737'
+GROUP BY 1, 2, 3, 4
+ORDER BY 3 DESC;
+SELECT r.flight_no, r.departure_city, r.arrival_city, a.model
+FROM routes r
+FULL OUTER JOIN aircrafts a ON r.aircraft_code = a.aircraft_code WHERE a.model ~ '^Боинг 737'
+GROUP BY 1, 2, 3, 4
+ORDER BY 3 DESC;
+SELECT r.flight_no, r.departure_city, r.arrival_city, a.model
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code WHERE a.model ~ '^Боинг 737'
+GROUP BY 1, 2, 3, 4
+ORDER BY 3 DESC;
+SELECT r.flight_no, r.departure_city, r.arrival_city, a.model
+FROM routes r
+FULL OUTER JOIN aircrafts a ON r.aircraft_code = a.aircraft_code WHERE a.model ~ '^Боинг 737'
+GROUP BY 1, 2, 3, 4
+ORDER BY 3 DESC;
+SELECT r.flight_no, r.departure_city, r.arrival_city, a.model
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code WHERE a;
+SELECT r.flight_no, r.departure_city, r.arrival_city, a.model
+FROM routes r
+FULL OUTER JOIN aircrafts a ON r.aircraft_code = a.aircraft_code;
+SELECT r.flight_no, r.departure_city, r.arrival_city, a.model
+FROM routes r
+FULL OUTER JOIN aircrafts a ON r.aircraft_code = a.aircraft_code;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+OUTER JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Boeing 777-300'
+ORDER BY 1;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+FUUL OUTER JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Boeing 777-300'
+ORDER BY 1;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+FULL OUTER JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Boeing 777-300'
+ORDER BY 1;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+LEFT OUTER JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Boeing 777-300'
+ORDER BY 1;
+SELECT DISTINCT departure_city, arrival_city
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+WHERE a.model = 'Боинг 777-300' AND departure_city > arrival_city
+ORDER BY 1, 2;
+\d routes;
+\s sql_cmd_1506.sql
