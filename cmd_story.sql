@@ -1581,3 +1581,29 @@ WHERE a.model = 'Боинг 777-300' AND departure_city > arrival_city
 ORDER BY 1, 2;
 \d routes;
 \s sql_cmd_1506.sql
+/q
+\q
+SELECT * FROM routes;
+\d routes;
+\d aircrafts;
+\d
+\d aircrafts;
+SELECT DISTINCT r.model, a.flight_no FROM routes r LEFT OUTER JOIN aircrafts a on r.aircraft_code = a.aircrfat_code;
+SELECT DISTINCT r.model, a.flight_no FROM routes r LEFT OUTER JOIN aircrafts a on r.aircraft_code = a.aircrafat_code;
+SELECT DISTINCT r.model, a.flight_no FROM routes r LEFT OUTER JOIN aircrafts a on r.aircraft_code = a.aircraft_code;
+SELECT DISTINCT a.model, r.flight_no FROM routes r LEFT OUTER JOIN aircrafts a on r.aircraft_code = a.aircraft_code;
+SELECT DISTINCT a.model, r.flight_no FROM routes r FULL OUTER JOIN aircrafts a on r.aircraft_code = a.aircraft_code;
+\s sql_cmd_1506.sql
+\s sql_cmd_1506.sql
+\q
+\l
+demo
+;
+SELECT arrival_city, count(flight_no) FROM routes WHERE array_length(days_of_week, 1) = 7 AND departure_city = 'Москва'
+GROUP BY arrival_city ORDER BY count DESC
+LIMIT 5;
+SELECT flight_no, unnest( days_of_week ) AS day_of_week
+FROM routes
+WHERE departure_city = 'Москва'
+ORDER BY flight_no;
+\s sql_cmd_2106.sql
