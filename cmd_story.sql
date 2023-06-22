@@ -1607,3 +1607,183 @@ FROM routes
 WHERE departure_city = 'Москва'
 ORDER BY flight_no;
 \s sql_cmd_2106.sql
+\q
+SELECT * FROM routes;
+\q
+SELECT dw.name_of_day, count( * ) AS num_flights
+FROM (
+SELECT unnest( days_of_week ) AS num_of_day
+FROM routes
+WHERE departure_city = 'Москва'
+) AS r,
+unnest( '{ 1, 2, 3, 4, 5, 6, 7 }'::integer[],
+'{ "Пн.", "Вт.", "Ср.", "Чт.", "Пт.", "Сб.", "Вс."}'::text[]
+) AS dw( num_of_day, name_of_day )
+WHERE r.num_of_day = dw.num_of_day
+GROUP BY r.num_of_day, dw.name_of_day
+ORDER BY r.num_of_day;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+GROUP BY 1, 2
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+GROUP BY 1, 2
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE max = NULL AND min = null
+GROUP BY 1, 2
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE max = null AND min = null
+GROUP BY 1, 2
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ) AS max, min( tf.amount ) AS min
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE max = null AND min = null
+GROUP BY 1, 2
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE tf.amount = NULL
+GROUP BY 1, 2
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE tf.amount = NULL
+GROUP BY 1, 2
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE tf.amount = NULL
+GROUP BY 1, 2
+HABING max( tf.amount )
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE tf.amount = NULL
+GROUP BY 1, 2
+HAvING max( tf.amount )
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE tf.amount = NULL
+GROUP BY 1, 2
+HAVING max( tf.amount ) = NULL
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+WHERE tf.amount = NULL
+GROUP BY 1, 2
+HAVING max( tf.amount ) = NULL AND max( tf.amount ) <> NULL
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+GROUP BY 1, 2
+HAVING max( tf.amount ) = NULL AND max( tf.amount ) <> NULL
+ORDER BY 1, 2;
+SELECT f.departure_city, f.arrival_city,
+max( tf.amount ), min( tf.amount )
+FROM flights_v f
+LEFT OUTER JOIN ticket_flights tf ON f.flight_id = tf.flight_id
+GROUP BY 1, 2
+ORDER BY 1, 2;
+SELECT * FROM tickets;
+SELECT left( passenger_name, strpos( passenger_name, ' ' ) - 1 )
+AS firstname, count( * )
+FROM tickets
+GROUP BY 1
+ORDER BY 2 DESC;
+SELECT right( passenger_name, strpos( passenger_name, ' ' ) - 1 )
+AS secondname, count( * )
+FROM tickets
+GROUP BY 1
+ORDER BY 2 DESC;
+SELECT right( passenger_name, strpos( passenger_name, ' ' ) )
+AS secondname, count( * )
+FROM tickets
+GROUP BY 1
+ORDER BY 2 DESC;
+SELECT right( passenger_name, strpos( passenger_name, ' ' ) + 1 )
+AS secondname, count( * )
+FROM tickets
+GROUP BY 1
+ORDER BY 2 DESC;
+SELECT left( passenger_name, strpos( passenger_name, ' ' ) - 1 )
+AS firstname, count( * )
+FROM tickets
+GROUP BY 1
+ORDER BY 2 DESC;
+SELECT split_part( passenger_name, ' ', 2)
+AS secondname, count( * )
+FROM tickets
+GROUP BY 1
+ORDER BY 2 DESC;
+SELECT s2.model,
+string_agg(
+s2.fare_conditions || ' (' || s2.num || ')',
+', '
+)
+FROM (
+SELECT a.model,
+s.fare_conditions,
+count( * ) AS num
+FROM aircrafts a
+JOIN seats s ON a.aircraft_code = s.aircraft_code
+GROUP BY 1, 2
+ORDER BY 1, 2
+) AS s2
+GROUP BY s2.model
+ORDER BY s2.model;
+SELECT a.model,
+s.fare_conditions,
+count( * ) AS num
+FROM aircrafts a
+JOIN seats s ON a.aircraft_code = s.aircraft_code
+GROUP BY 1, 2
+ORDER BY 1, 2
+;
+SELECT a.aircraft_code, a.model,
+s.fare_conditions,
+count( * ) AS num
+FROM aircrafts a
+JOIN seats s ON a.aircraft_code = s.aircraft_code
+GROUP BY 1, 2
+ORDER BY 1, 2
+;
+SELECT a.aircraft_code, a.model,
+s.fare_conditions,
+count( * ) AS num
+FROM aircrafts a
+JOIN seats s ON a.aircraft_code = s.aircraft_code
+GROUP BY 1, 2, 3
+ORDER BY 1, 2, 3
+;
+\q sql_cmd_2206.sql
+\s sql_cmd_2206.sql
