@@ -1787,3 +1787,77 @@ ORDER BY 1, 2, 3
 ;
 \q sql_cmd_2206.sql
 \s sql_cmd_2206.sql
+WITH RECURSIVE ranges ( min_sum, max_sum, level )
+AS (
+VALUES( 0, 100000, 0 ),
+( 100000, 200000, 0 ),
+( 200000, 300000, 0 )
+UNION
+SELECT min_sum + 100000, max_sum + 100000, level + 1
+FROM ranges
+WHERE max_sum < ( SELECT max( total_amount ) FROM bookings )
+)
+SELECT * FROM ranges;
+WITH RECURSIVE ranges ( min_sum, max_sum )
+AS (
+VALUES( 0, 100000 )
+UNION ALL
+SELECT min_sum + 100000, max_sum + 100000
+FROM ranges
+WHERE max_sum < ( SELECT max( total_amount ) FROM bookings )
+)
+SELECT r.min_sum,
+r.max_sum,
+count( b.* )
+FROM bookings b
+RIGHT OUTER JOIN ranges r
+ON b.total_amount >= r.min_sum
+AND b.total_amount < r.max_sum
+GROUP BY r.min_sum, r.max_sum
+ORDER BY r.min_sum;
+WITH RECURSIVE ranges ( min_sum, max_sum )
+AS (
+VALUES( 0, 100000 )
+UNION ALL
+SELECT min_sum + 100000, max_sum + 100000
+FROM ranges
+WHERE max_sum < ( SELECT max( total_amount ) FROM bookings )
+)
+SELECT r.min_sum,
+r.max_sum,
+count( * )
+FROM bookings b
+RIGHT OUTER JOIN ranges r
+ON b.total_amount >= r.min_sum
+AND b.total_amount < r.max_sum
+GROUP BY r.min_sum, r.max_sum
+ORDER BY r.min_sum;
+SELECT DISTINCT a.city
+FROM airports a
+WHERE NOT EXISTS (
+SELECT * FROM routes r
+WHERE r.departure_city = 'Москва'
+AND r.arrival_city = a.city
+)
+AND a.city <> 'Москва'
+ORDER BY city;
+SELECT city, count( * )
+FROM airports
+GROUP BY city;
+
+WITH a1 AS
+(
+SELECT DISTINCT city FROM airports
+),
+WITH a2 AS
+(
+ SELECT DISTINCT city FROM airports )
+SELECT count ( * )
+JOIN ON a1.city <> a2.city;
+WITH a1 AS
+(
+SELECT DISTINCT city FROM airports
+)
+SELECT count ( * ) FROM a1
+JOIN ( SELECT DISTINCT city FROM airports ) AS a2 ON a1.city <> a2.city;
+\s sql_cmd_2506_1802.sql
