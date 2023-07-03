@@ -2421,3 +2421,310 @@ WHERE passenger_name = 'IVAN IVANOV';
 DROP INDEX passenger_name;
 \q
 \s sql_cmd_2906.sql
+\q
+\d
+\d seats
+\d tickets
+CREATE INDEX tickets_book_ref_test_key
+ON tickets ( book_ref );
+\timing on
+SELECT *
+FROM tickets
+ORDER BY book_ref
+LIMIT 5;
+DROP INDEX tickets_book_ref_test_key;
+SELECT *
+FROM tickets
+ORDER BY book_ref
+LIMIT 5;
+CREATE UNIQUE INDEX aircrafts_unique_model_key
+ON aircrafts ( model );
+\d
+CREATE UNIQUE INDEX aircrafts_unique_model_key
+ON aircrafts_tbl ( model );
+CREATE TABLE aircrafts_tbl AS SELECT * FROM aircrafts;
+CREATE UNIQUE INDEX aircrafts_unique_model_key
+ON aircrafts_tbl ( model );
+\d ticket_flights
+CREATE INDEX ON ticket_flights ( fare_conditions );
+SELECT count( * )
+FROM ticket_flights
+WHERE fare_conditions = 'Economy';
+SELECT count( * )
+FROM ticket_flights
+WHERE fare_conditions = 'Business';
+SELECT count( * )
+FROM ticket_flights
+WHERE fare_conditions = 'Comfort';
+SELECT count( * )
+FROM ticket_flights
+WHERE fare_conditions = 'Economy';
+SELECT count( * )
+FROM ticket_flights
+WHERE fare_conditions = 'Business';
+SELECT count( * )
+FROM ticket_flights
+WHERE fare_conditions = 'Comfort';
+\d
+\d aircrafts_tbl 
+DROP INDEX aircrafts_unique_model_key;
+SELECT * FROM ticket_flights ;
+\d tickets
+SELECT * FROM bookings;
+SELECT * FROM routes;
+\d
+\d ticket_flights
+\d aircrafts_data 
+\d aircrafts_data 
+\d
+SELECT * FROM bookings;
+\d ticket_flights
+SELECT * FROM routes;
+\d
+SELECT * FROM seats;
+SELECT * FROM routes;
+SELECT * FROM airports;
+SELECT * FROM bookings;
+CREATE INDEX ON bookings(book_ref NULLS FIRST, total_amount DESC NULLS LAST);
+\d bookings;
+CREATE INDEX bookings_book_date_part_key
+ON bookings ( book_date )
+WHERE total_amount > 1000000;
+CREATE INDEX bookings_total_amount_key
+ON bookings ( total_amount );
+DROP INDEX bookings_book_date_part_key;
+\d bookings;
+DROP INDEX bookings_book_date_part_key;
+CREATE INDEX bookings_book_date_part_key
+ON bookings ( book_date )
+WHERE total_amount > 1000000;
+SELECT *
+FROM bookings
+WHERE total_amount > 1000000
+ORDER BY book_date DESC;
+DROP INDEX bookings_book_date_part_key;
+CREATE INDEX bookings_total_amount_key
+ON bookings ( total_amount );
+SELECT *
+FROM bookings
+WHERE total_amount > 1000000
+ORDER BY book_date DESC;
+\й
+\q
+SELECT * FROM bookings;
+\di bookings_book_ref_total_amount_idx;
+\di+ bookings_book_ref_total_amount_idx;
+\s sql_cmd_3006.sql
+\q
+CREATE TABLE aircrafts_tmp
+AS SELECT * FROM aircrafts;
+BEGIN;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+SHOW transaction_isolation;
+UPDATE aircrafts_tmp
+SET range = range + 100
+WHERE aircraft_code = 'SU9';
+SELECT *
+FROM aircrafts_tmp
+WHERE aircraft_code = 'SU9';
+ROLLBACK;
+BEGIN ISOLATION LEVEL READ COMMITTED;
+SHOW transaction_isolation;
+UPDATE aircrafts_tmp
+SET range = range + 100
+WHERE aircraft_code = 'SU9';
+SELECT *
+FROM aircrafts_tmp
+WHERE aircraft_code = 'SU9';
+COMMIT;
+BEGIN;
+SELECT * FROM aircrafts_tmp;
+SELECT * FROM aircrafts_tmp;
+END;
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+SELECT * FROM aircrafts_tmp;
+SELECT *
+FROM aircrafts_tmp;
+END;
+SELECT *
+FROM aircrafts_tmp;
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+UPDATE aircrafts_tmp
+SET range = range + 100
+WHERE aircraft_code = '320';
+END;
+CREATE TABLE modes (
+num integer,
+mode text
+);
+INSERT INTO modes VALUES ( 1, 'LOW' ), ( 2, 'HIGH' );
+SELECT * FROM modes;
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE modes
+SET mode = 'HIGH'
+WHERE mode = 'LOW'
+RETURNING *;
+SELECT * FROM modes;
+COMMIT;
+UPDATE modes
+SET mode = 'LOW'
+WHERE num = 1
+RETURNING *;
+COMMIT;
+SELECT * FROM modes;
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE modes
+SET mode = 'HIGH'
+WHERE mode = 'LOW'
+RETURNING *;
+END;
+SELECT * FROM modes;
+UPDATE modes
+SET mode = 'HIGH'
+WHERE num = 2
+RETURNING *;
+END;
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE modes
+SET mode = 'LOW'
+WHERE mode = 'HIGH'
+RETURNING *;
+END;
+SELECT * FROM modes;
+INSERT INTO bookings ( book_ref, book_date, total_amount )
+VALUES ( 'ABC123', bookings.now(), 0 );
+INSERT INTO tickets ( ticket_no, book_ref, passenger_id, passenger_name)
+VALUES ( '9991234567890', 'ABC123', '1234 123456', 'IVAN PETROV' );
+INSERT INTO tickets ( ticket_no, book_ref, passenger_id, passenger_name)
+VALUES ( '9991234567891', 'ABC123', '4321 654321', 'PETR IVANOV' );
+INSERT INTO ticket_flights
+( ticket_no, flight_id, fare_conditions, amount )
+VALUES ( '9991234567890', 5572, 'Business', 12500 ),
+( '9991234567890', 13881, 'Economy', 8500 );
+INSERT INTO ticket_flights
+( ticket_no, flight_id, fare_conditions, amount )
+VALUES ( '9991234567891', 5572, 'Business', 12500 ),
+( '9991234567891', 13881, 'Economy', 8500 );
+DELETE FROM bookings WHERE book_ref = 'ABC123';
+DELETE FROM tickets WHERE passenger_id = '1234 123456';
+DELETE FROM ticket_flights WHERE ticket_no = '9991234567891';
+DELETE FROM tickets WHERE passenger_id = '1234 123456';
+DELETE FROM ticket_flights WHERE ticket_no = '9991234567890';
+DELETE FROM tickets WHERE passenger_id = '1234 123456';
+DELETE FROM tickets WHERE passenger_id = '4321 654321';
+DELETE FROM bookings WHERE book_ref = 'ABC123';
+END;
+BEGIN;
+INSERT INTO bookings ( book_ref, book_date, total_amount )
+VALUES ( 'ABC123', bookings.now(), 0 );
+INSERT INTO tickets ( ticket_no, book_ref, passenger_id, passenger_name)
+VALUES ( '9991234567890', 'ABC123', '1234 123456', 'IVAN PETROV' );
+INSERT INTO tickets ( ticket_no, book_ref, passenger_id, passenger_name)
+VALUES ( '9991234567891', 'ABC123', '4321 654321', 'PETR IVANOV' );
+INSERT INTO ticket_flights
+( ticket_no, flight_id, fare_conditions, amount )
+VALUES ( '9991234567890', 5572, 'Business', 12500 ),
+( '9991234567890', 13881, 'Economy', 8500 );
+INSERT INTO ticket_flights
+( ticket_no, flight_id, fare_conditions, amount )
+VALUES ( '9991234567891', 5572, 'Business', 12500 ),
+( '9991234567891', 13881, 'Economy', 8500 );
+UPDATE bookings
+SET total_amount =
+( SELECT sum( amount )
+FROM ticket_flights
+WHERE ticket_no IN
+( SELECT ticket_no
+FROM tickets
+WHERE book_ref = 'ABC123'
+)
+)
+WHERE book_ref = 'ABC123';
+SELECT *
+FROM bookings
+WHERE book_ref = 'ABC123';
+COMMIT;
+BEGIN ISOLATION LEVEL READ COMMITTED;
+SHOW transaction_isolation;
+SELECT *
+FROM aircrafts_tmp
+WHERE model ~ '^Аэро'
+FOR UPDATE;
+UPDATE aircrafts_tmp
+SET range = 5800
+WHERE aircraft_code = '320';
+END;
+BEGIN ISOLATION LEVEL READ COMMITTED;
+SHOW transaction_isolation;
+LOCK TABLE aircrafts_tmp
+IN ACCESS EXCLUSIVE MODE;
+ ROLLBACK;
+\s sql_cmd_307.sql
+\q
+BEGIN;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+SELECT *
+FROM aircrafts_tmp
+WHERE aircraft_code = 'SU9';
+ROLLBACK;
+BEGIN;
+UPDATE aircrafts_tmp
+SET range = range + 200
+WHERE aircraft_code = 'SU9';
+SELECT *
+FROM aircrafts_tmp
+WHERE aircraft_code = 'SU9';
+END;
+BEGIN;
+DELETE FROM aircrafts_tmp
+WHERE model ~ '^Боин';
+SELECT * FROM aircrafts_tmp;
+END;
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+INSERT INTO aircrafts_tmp
+VALUES ( 'IL9', 'Ильюшин ИЛ96', 9800 );
+UPDATE aircrafts_tmp
+SET range = range + 100
+WHERE aircraft_code = '320';
+END;
+BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+UPDATE aircrafts_tmp
+SET range = range + 200
+WHERE aircraft_code = '320';
+END;
+SELECT *
+FROM aircrafts_tmp
+WHERE aircraft_code = '320';
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE modes
+SET mode = 'LOW'
+WHERE mode = 'HIGH'
+RETURNING *;
+SELECT * FROM modes;
+COMMIT;
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE modes
+SET mode = 'LOW'
+WHERE mode = 'HIGH'
+RETURNING *;
+END;
+SELECT * FROM modes;
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE modes
+SET mode = 'HIGH'
+WHERE mode = 'LOW'
+RETURNING *;
+END;
+SELECT * FROM modes;
+BEGIN ISOLATION LEVEL READ COMMITTED;
+SHOW transaction_isolation;
+SELECT *
+FROM aircrafts_tmp
+WHERE model ~ '^Аэро'
+FOR UPDATE;
+END;
+SELECT *
+FROM aircrafts_tmp
+WHERE model ~ '^Аэро';
+\q
+\s sql_cmd_307.sql
