@@ -2728,3 +2728,51 @@ FROM aircrafts_tmp
 WHERE model ~ '^Аэро';
 \q
 \s sql_cmd_307.sql
+\q
+BEGIN;
+SELECT * FROM aircrafts_tmp WHERE range < 2000;
+UPDATE aircrafts_tmp SET range = 2100 WHERE aircraft_code = 'CN1';
+UPDATE aircrafts_tmp SET range = 1900 WHERE aircraft_code = 'CR2';
+COMMIT;
+BEGIN;
+UPDATE aircrafts_tmp SET range = 2100 WHERE aircraft_code = 'CR2';
+UPDATE aircrafts_tmp SET range = 1200 WHERE aircraft_code = 'CN1';
+ROLLBACK;
+BEGIN;
+SELECT * FROM aircrafts_tmp WHERE range > 6000;
+SELECT * FROM aircrafts_tmp WHERE range > 6000;
+END;
+BEGIN;
+SELECT * FROM aircrafts_tmp WHERE range > 6000;
+SELECT * FROM aircrafts_tmp WHERE range > 6000;
+END;
+CREATE TABLE modes AS
+SELECT num::integer, 'LOW' || num::text AS mode
+FROM generate_series( 1, 100000 ) AS gen_ser( num )
+UNION ALL
+SELECT num::integer, 'HIGH' || ( num - 100000 )::text AS mode
+FROM generate_series( 100001, 200000 ) AS gen_ser( num );
+CREATE TABLE modes2 AS
+SELECT num::integer, 'LOW' || num::text AS mode
+FROM generate_series( 1, 100000 ) AS gen_ser( num )
+UNION ALL
+SELECT num::integer, 'HIGH' || ( num - 100000 )::text AS mode
+FROM generate_series( 100001, 200000 ) AS gen_ser( num );
+SELECT * FROM modes2;
+CREATE INDEX modes_ind
+ON modes ( num );
+SELECT *
+FROM modes
+WHERE mode IN ( 'LOW1', 'HIGH1' );
+CREATE INDEX modes_ind
+ON modes2 ( num );
+CREATE INDEX modes_ind2
+ON modes2 ( num );
+SELECT *
+FROM modes2
+WHERE mode IN ( 'LOW1', 'HIGH1' );
+BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+UPDATE modes2 SET mode = 'HIGH1' WHERE num = 1;
+COMMIT;
+SELECT * FROM modes2 WHERE mode IN ('LOW1', 'HIGH1');
+\s sql_cmd_407.sql
