@@ -2826,3 +2826,68 @@ EXPLAIN SELECT count( * )
 FROM seats
 WHERE aircraft_code = 'SU9';
 \s sql_cmd_507.sql
+\q
+EXPLAIN SELECT a.aircraft_code,
+a.model,
+s.seat_no,
+s.fare_conditions
+FROM seats s
+JOIN aircrafts a ON s.aircraft_code = a.aircraft_code
+WHERE a.model ~ '^Аэро'
+ORDER BY s.seat_no;
+EXPLAIN SELECT r.flight_no,
+r.departure_airport_name,
+r.arrival_airport_name,
+a.model
+FROM routes r
+JOIN aircrafts a ON r.aircraft_code = a.aircraft_code
+ORDER BY flight_no;
+EXPLAIN SELECT t.ticket_no,
+t.passenger_name,
+tf.flight_id,
+tf.amount
+FROM tickets t
+JOIN ticket_flights tf ON t.ticket_no = tf.ticket_no
+ORDER BY t.ticket_no;
+SET enable_mergejoin = off;
+EXPLAIN SELECT t.ticket_no,
+t.passenger_name,
+tf.flight_id,
+tf.amount
+FROM tickets t
+JOIN ticket_flights tf ON t.ticket_no = tf.ticket_no
+ORDER BY t.ticket_no;
+SET enable_mergejoin = on;
+EXPLAIN ANALYZE
+SELECT t.ticket_no,
+t.passenger_name,
+tf.flight_id,
+tf.amount
+FROM tickets t
+JOIN ticket_flights tf ON t.ticket_no = tf.ticket_no
+ORDER BY t.ticket_no;
+EXPLAIN ANALYZE
+SELECT t.ticket_no,
+t.passenger_name,
+tf.flight_id,
+tf.amount
+FROM tickets t
+JOIN ticket_flights tf ON t.ticket_no = tf.ticket_no
+WHERE amount > 50000
+ORDER BY t.ticket_no;
+EXPLAIN (ANALYZE, COSTS OFF)
+SELECT a.aircraft_code,
+a.model,
+s.seat_no,
+s.fare_conditions
+FROM seats s
+JOIN aircrafts a ON s.aircraft_code = a.aircraft_code
+WHERE a.model ~ '^Аэро'
+ORDER BY s.seat_no;
+BEGIN;
+EXPLAIN (ANALYZE, COSTS OFF)
+UPDATE aircrafts
+SET range = range + 100
+WHERE model ~ '^Аэро';
+ROLLBACK;
+\s sql_cmd_607.sql
